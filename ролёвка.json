@@ -1,0 +1,2102 @@
+{
+  "name": "ролёвка",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        416
+      ],
+      "id": "1ac70625-f2df-490f-bc0c-6b597f1cc5e7",
+      "name": "Telegram Trigger",
+      "webhookId": "ba50f98c-6245-439c-a91f-e309818cb63d",
+      "credentials": {
+        "telegramApi": {
+          "id": "S3rYaW7Ytn87ydbj",
+          "name": "ролевик"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "20c10455-82d8-41d2-98f7-03d85b5a2070",
+              "name": "platform",
+              "value": "telegram",
+              "type": "string"
+            },
+            {
+              "id": "5e4cbb51-6771-4c8f-9b0c-af09acad702d",
+              "name": "session_id",
+              "value": "={{$json.message.chat.id}}",
+              "type": "string"
+            },
+            {
+              "id": "4941c063-1b69-49e0-932a-68919ef311b7",
+              "name": "chat_id",
+              "value": "={{$json.message.chat.id}}",
+              "type": "string"
+            },
+            {
+              "id": "c4d1caf9-43a0-42e3-8e67-0621501987b5",
+              "name": "user_id",
+              "value": "={{$json.message.from.id}}",
+              "type": "string"
+            },
+            {
+              "id": "ea36bd3e-6768-4f15-8e02-13c0e059e2d1",
+              "name": "username",
+              "value": "={{$json.message.from.username \n\n $json.message.from.first_name \n\n 'player'}}",
+              "type": "string"
+            },
+            {
+              "id": "97a7819d-a638-45eb-a22e-143e9a79d5d6",
+              "name": "message_id",
+              "value": "={{$json.message.message_id}}",
+              "type": "string"
+            },
+            {
+              "id": "50a04e60-4e8c-4e10-8e00-748cbf2b7a76",
+              "name": "user_text",
+              "value": "={{$json.message.text}}",
+              "type": "string"
+            },
+            {
+              "id": "2b0322b6-7300-4c04-9ca1-da463d7e3173",
+              "name": "source_type",
+              "value": "message",
+              "type": "string"
+            },
+            {
+              "id": "348c8d75-5f84-407b-89a7-f37af9c17631",
+              "name": "telegram_date",
+              "value": "={{$json.message.date}}",
+              "type": "string"
+            },
+            {
+              "id": "43e87403-136d-44b0-901e-58bbb7f3d326",
+              "name": "=run_ts",
+              "value": "={{$now}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        176,
+        432
+      ],
+      "id": "22f5e40f-0e45-4edc-aa76-9a8ce235f638",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const text = ($json.user_text || '').trim();\n\nreturn {\n  json: {\n    platform: $json.platform,\n    session_id: String($json.session_id),\n    chat_id: String($json.chat_id),\n    user_id: String($json.user_id),\n    username: $json.username || 'player',\n    message_id: $json.message_id,\n    user_text: text,\n    turn: {\n      input_text: text,\n      input_type: text.startsWith('/') ? 'command' : 'story',\n      command: text.startsWith('/') ? text.split(' ')[0].toLowerCase() : null,\n      command_args: text.startsWith('/') ? text.split(' ').slice(1).join(' ') : null\n    },\n    meta: {\n      source_type: $json.source_type,\n      telegram_date: $json.telegram_date,\n      run_ts: $json.run_ts\n    }\n  }\n};\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        336,
+        640
+      ],
+      "id": "7d1ee61c-6476-410c-8503-a303b32dd61e",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{$json.turn.command}}",
+                    "rightValue": "/start",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "5fe17c37-6834-4c14-bb77-7f56525011f6"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "start"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "d13bf4dd-4c2f-46ee-8ddd-65f186460669",
+                    "leftValue": "={{$json.turn.command}}",
+                    "rightValue": "/reset",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "reset"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "c5c54e3e-eb31-41b8-a07a-42db79888480",
+                    "leftValue": "={{$json.turn.input_type}}",
+                    "rightValue": "story",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "story"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        608,
+        336
+      ],
+      "id": "420afc0a-850b-4ee9-ae84-4d5f04e3f494",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "eff2b29b-30dd-4e19-9db4-dda592187f10",
+              "leftValue": "={{$json.session_id}}",
+              "rightValue": "is not empty",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1296,
+        304
+      ],
+      "id": "9e018c2b-a90e-4dc0-af10-44748d068d81",
+      "name": "session_exists"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO game_sessions (\n  session_id,\n  player_name,\n  current_scene,\n  state_json,\n  summary_text,\n  is_initialized,\n  created_at,\n  updated_at\n)\nVALUES (\n  '{{ $(\"Code in JavaScript\").item.json.session_id }}',\n  '{{ $(\"Code in JavaScript\").item.json.username }}',\n  'intro_pending',\n  '{{ JSON.stringify({\n    player: {\n      name: \"Дэниал\",\n      injuries: [],\n      inventory: [],\n      status_effects: [],\n      contracts: []\n    },\n    world: {\n      location: null,\n      time_of_day: null,\n      weather: null,\n      danger_level: 0\n    },\n    scene: {\n      title: null,\n      situation: null\n    },\n    meta: {\n      turn_count: 0\n    }\n  }) }}',\n  '',\n  false,\n  NOW(),\n  NOW()\n)\nRETURNING\n  session_id,\n  player_name,\n  current_scene,\n  state_json,\n  summary_text,\n  is_initialized,\n  created_at,\n  updated_at;\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1424,
+        432
+      ],
+      "id": "ff201561-906f-41a1-ab40-0e46928f008f",
+      "name": "create_session",
+      "credentials": {
+        "postgres": {
+          "id": "yT0nyyXSWfoMGoEc",
+          "name": "ролевик sql"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1632,
+        240
+      ],
+      "id": "0dc49df6-1309-4d5c-af00-e70df4529eb8",
+      "name": "session_ready"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT\n  session_id,\n  player_name,\n  current_scene,\n  state_json,\n  summary_text,\n  is_initialized,\n  updated_at\nFROM game_sessions\nWHERE session_id = $1\nLIMIT 1;\n",
+        "options": {
+          "queryReplacement": "={{$json.session_id}}"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1024,
+        320
+      ],
+      "id": "887e257f-6519-489b-ad0d-9b780b572944",
+      "name": "load_session",
+      "credentials": {
+        "postgres": {
+          "id": "yT0nyyXSWfoMGoEc",
+          "name": "ролевик sql"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        2256,
+        752
+      ],
+      "id": "d965d583-cb77-4a17-b0f9-0fd80fc42be7",
+      "name": "session_with_turn"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT\n  id,\n  memory_type,\n  content,\n  importance,\n  created_at\nFROM game_memories\nWHERE session_id = '{{ $(\"session_with_turn\").item.json.session_id }}'\nORDER BY importance DESC, created_at DESC\nLIMIT 12;\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        2048,
+        384
+      ],
+      "id": "be74d1c6-ce37-4f2e-91a6-9a1c373d9c84",
+      "name": "load_recent_memory",
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "yT0nyyXSWfoMGoEc",
+          "name": "ролевик sql"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const memories = items.map(item => item.json);\n\nconst memoryLines = memories.map((m, index) => {\n  const type = m.memory_type || 'memory';\n  const importance = m.importance ?? 0;\n  const content = m.content || '';\n  return `[${index + 1}] (${type}, importance=${importance}) ${content}`;\n});\n\nreturn [\n  {\n    json: {\n      session_id: $('session_with_turn').item.json.session_id,\n      memory_count: memories.length,\n      memory_block: memoryLines.length\n        ? memoryLines.join('\\n')\n        : 'Нет сохранённой памяти.'\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2240,
+        384
+      ],
+      "id": "82eacfbe-3662-4ed4-ab1e-5261a164277c",
+      "name": "memory_pack"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "numberInputs": 4,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        2768,
+        16
+      ],
+      "id": "ee77d6f7-84f6-4fe6-beef-187b48e6abe6",
+      "name": "story_context_base"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const sessionId = String($json.session_id || '');\nconst chatId = String($json.chat_id || '');\nconst userId = String($json.user_id || '');\nconst username = String($json.username || 'player');\nconst userText = String($json.user_text || '').trim();\nconst currentScene = String($json.current_scene || 'intro_pending');\nconst isInitialized = Boolean($json.is_initialized);\n\nfunction limitText(value, maxLen) {\n  const text = String(value || '').trim();\n  if (!text) return '';\n  return text.length > maxLen ? text.slice(0, maxLen) + '\\n...[truncated]' : text;\n}\n\nconst worldBible = limitText($json.world_bible_block || 'Лор мира пока не загружен.', 8000);\nconst summaryText = limitText($json.summary_text || 'Нет краткого summary.', 2500);\nconst dialogueBlock = limitText($json.dialogue_block || 'Нет предыдущих ходов.', 3500);\nconst memoryBlock = limitText($json.memory_block || 'Нет сохранённой памяти.', 2500);\nconst worldStateBlock = limitText($json.world_state_block || 'Мировое состояние пока пустое.', 3500);\n\n\nconst systemPrompt = [\n  'Ты — ведущий повествовательной текстовой ролевой игры.',\n  'Пиши только на русском языке. Никогда не вставляй английские, латинские или транслитерированные слова в основной текст. Если нужно иностранное название — переведи или замени русским аналогом.',\n  'Пиши только от второго лица: \"ты\".',\n  'Игрок полностью управляет только Дэниалом. Никогда не пиши реплики, действия, решения, выборы или мысли за Дэниала. Не продолжай его фразы. Не дописывай за него.',\n  'Если игрок написал действие или реплику — считай, что оно уже произошло, и описывай только последствия: реакцию мира, NPC, угроз, окружения, Системы, Созвездий и Ведущих.',\n  'Управляй только миром, NPC, врагами, окружением, последствиями, Системой и сценой.',\n  'Стиль: мрачный, кинематографичный, напряжённый, реалистичный, жёсткий. Не смягчай атмосферу и не морализируй. Не превращай сцену в бессмысленную мясорубку.',\n  'Сохраняй причинно-следственную связь и внутреннюю логику мира из блока [WORLD_BIBLE].',\n  'Строго следуй блоку [WORLD_BIBLE]. Это канон. Не противоречь ему и не вводи сущности, которые ему противоречат.',\n  'Запрещено использовать любое декоративное форматирование: никаких звёздочек, двойных звёздочек, подчёркиваний, обратных кавычек, символов решётки, квадратных скобок-заголовков, Markdown и HTML-тегов. Пиши цельным художественным текстом.',\n  'Системные уведомления, реплики Ведущего и реакции Созвездий подавай как отдельные короткие блоки внутри повествования, без Markdown, без звёздочек, без английских слов.',\n  'Не задавай прямой вопрос в духе \"что ты делаешь?\", \"что дальше?\", \"куда ты пойдёшь?\" в конце ответа. Завершай ответ открытой ситуацией, а не вопросом игроку.',\n  'Не предлагай список вариантов действий.'\n].join('\\n');\n\n\nconst openingDirective = !isInitialized\n  ? [\n      '[OPENING_DIRECTIVE]',\n      'Это первый ход новой сессии. Сейчас ты обязан начать сцену строго по разделу ## OPENING_SCENE из [WORLD_BIBLE].',\n      'Запрещено выдумывать другое место, других существ, другие обстоятельства начала шоу.',\n      'Дэниал должен оказаться среди огромной толпы людей (около тысячи человек) в крупном современном городе 2030 года, в обычной городской локации (площадь, торговый центр, метро, кампус, стадион, развязка).',\n      'Над толпой небо должно треснуть тонкой светящейся линией. В небе или над землёй должен появиться маленький разлом. Из разлома должно вылететь существо размером с кошку, похожее на плюшевую игрушку с большими глазами и невозможной улыбкой.',\n      'Перед лицом каждого человека, включая Дэниала, должен появиться личный системный экран с приветствием.',\n      'Запрещено: руины, апокалипсис, амнезия, \"ты не помнишь\", разрушенные здания, сектора с номерами, активированные контракты, именованные Созвездия, голоса в голове, выданные задания. Ничего этого в первой сцене быть не должно. Мир ещё обычный, и трещина в небе — первое аномальное событие.',\n      'Не пиши за Дэниала действий, реплик, решений и мыслей. Завершай сцену моментом, в котором игрок делает свой первый ход.'\n    ].join('\\n') + '\\n\\n'\n  : '';\n\nconst contextBlock = openingDirective + [\n  '[WORLD_BIBLE]',\n  worldBible,\n  '',\n  '[SESSION_ID]',\n  sessionId,\n  '',\n  '[PLAYER]',\n  username,\n  '',\n  '[CURRENT_SCENE]',\n  currentScene,\n  '',\n  '[IS_INITIALIZED]',\n  String(isInitialized),\n  '',\n  '[SUMMARY]',\n  summaryText,\n  '',\n  '[RECENT_TURNS]',\n  dialogueBlock,\n  '',\n  '[MEMORY]',\n  memoryBlock,\n  '',\n  '[WORLD_STATE]',\n  worldStateBlock,\n  '',\n  '[LATEST_USER_INPUT]',\n  userText\n].join('\\n');\nreturn {\n  json: {\n    session_id: sessionId,\n    chat_id: chatId,\n    user_id: userId,\n    username: username,\n    user_text: userText,\n    prompt_payload: {\n      system: systemPrompt,\n      context: contextBlock,\n      user: userText\n    }\n  }\n};\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3008,
+        528
+      ],
+      "id": "13859c6f-b767-496f-8cbb-1ccc97f43bbc",
+      "name": "build_prompt_payload"
+    },
+    {
+      "parameters": {
+        "model": "deepseek/deepseek-chat-v3.1",
+        "options": {
+          "maxTokens": 1200,
+          "temperature": 0.9
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        3264,
+        608
+      ],
+      "id": "c667746a-a19f-45f6-bf4d-acbddb5fb91e",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "TuxL7GWoRbXnLuCk",
+          "name": "ролевик"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const response =\n  $json.text ||\n  $json.response ||\n  $json.output ||\n  $json.output_text ||\n  $json.content ||\n  '';\n\nreturn {\n  json: {\n    session_id: $('build_prompt_payload').item.json.session_id,\n    chat_id: $('build_prompt_payload').item.json.chat_id,\n    user_id: $('build_prompt_payload').item.json.user_id,\n    username: $('build_prompt_payload').item.json.username,\n    user_text: $('build_prompt_payload').item.json.user_text,\n    assistant_text: Array.isArray(response) ? response.join('\\n') : String(response).trim()\n  }\n};\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3584,
+        384
+      ],
+      "id": "bd909dca-34ad-406d-88e0-2f4e66ca2120",
+      "name": "extract_model_text"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO game_turns (\n  session_id,\n  user_id,\n  username,\n  user_text,\n  assistant_text,\n  created_at\n)\nVALUES (\n  '{{ $(\"reply_ready\").item.json.session_id }}',\n  '{{ $(\"reply_ready\").item.json.user_id }}',\n  '{{ $(\"reply_ready\").item.json.username }}',\n  '{{ $(\"reply_ready\").item.json.user_text.replace(/'/g, \"''\") }}',\n  '{{ $(\"reply_ready\").item.json.assistant_text.replace(/'/g, \"''\") }}',\n  NOW()\n)\nRETURNING id, session_id, created_at;\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        4448,
+        816
+      ],
+      "id": "01d325ed-2bc8-4adf-8819-906db100a791",
+      "name": "save_turn",
+      "credentials": {
+        "postgres": {
+          "id": "yT0nyyXSWfoMGoEc",
+          "name": "ролевик sql"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{$(\"reply_ready\").item.json.chat_id}}\n",
+        "text": "={{ $(\"reply_ready\").item.json.telegram_text\n  .replace(/&/g, '&amp;')\n  .replace(/</g, '&lt;')\n  .replace(/>/g, '&gt;') }}\n",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "HTML"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        5280,
+        768
+      ],
+      "id": "7253bf6d-7a15-441f-9d71-282a5518a11d",
+      "name": "send_reply",
+      "webhookId": "76db3a87-0493-4da7-9424-c5563d173993",
+      "credentials": {
+        "telegramApi": {
+          "id": "S3rYaW7Ytn87ydbj",
+          "name": "ролевик"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE game_sessions\nSET updated_at = NOW()\nWHERE session_id = '{{ $(\"reply_ready\").item.json.session_id }}'\nRETURNING session_id, updated_at;\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        5280,
+        272
+      ],
+      "id": "34a6dc9b-2e74-43a2-a3af-7335ae4cf59e",
+      "name": "touch_session",
+      "credentials": {
+        "postgres": {
+          "id": "yT0nyyXSWfoMGoEc",
+          "name": "ролевик sql"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO game_memories (\n  session_id,\n  memory_type,\n  content,\n  importance,\n  created_at\n)\nVALUES (\n  '{{ $(\"memory_entry_prepare\").item.json.session_id }}',\n  '{{ $(\"memory_entry_prepare\").item.json.memory_type }}',\n  '{{ $(\"memory_entry_prepare\").item.json.memory_content.replace(/'/g, \"''\") }}',\n  {{ $(\"memory_entry_prepare\").item.json.memory_importance }},\n  NOW()\n)\nRETURNING id, session_id, memory_type, importance, created_at;\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        4608,
+        128
+      ],
+      "id": "d2784d80-2dfa-472f-8589-dae951488913",
+      "name": "save_memory",
+      "credentials": {
+        "postgres": {
+          "id": "yT0nyyXSWfoMGoEc",
+          "name": "ролевик sql"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE game_sessions\nSET summary_text = RIGHT(\n  TRIM(BOTH E'\\n' FROM CONCAT_WS(E'\\n',\n    NULLIF(summary_text, ''),\n    'Игрок: {{ $(\"reply_ready\").item.json.user_text.replace(/'/g, \"''\") }}',\n    'ИИ: {{ $(\"reply_ready\").item.json.assistant_text.replace(/'/g, \"''\") }}'\n  )),\n  12000\n),\nupdated_at = NOW()\nWHERE session_id = '{{ $(\"reply_ready\").item.json.session_id }}'\nRETURNING session_id, summary_text, updated_at;\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        5280,
+        112
+      ],
+      "id": "61fa5c14-365d-4635-a18e-b399cdb82600",
+      "name": "update_summary",
+      "credentials": {
+        "postgres": {
+          "id": "yT0nyyXSWfoMGoEc",
+          "name": "ролевик sql"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO game_sessions (\n  session_id,\n  player_name,\n  current_scene,\n  state_json,\n  summary_text,\n  is_initialized,\n  created_at,\n  updated_at\n)\nVALUES (\n  '{{ $(\"Code in JavaScript\").item.json.session_id }}',\n  '{{ $(\"Code in JavaScript\").item.json.username }}',\n  'intro_pending',\n  '{{ JSON.stringify({\n    player: {\n      name: \"Дэниал\",\n      injuries: [],\n      inventory: [],\n      status_effects: [],\n      contracts: []\n    },\n    world: {\n      location: null,\n      time_of_day: null,\n      weather: null,\n      danger_level: 0\n    },\n    scene: {\n      title: null,\n      situation: null\n    },\n    meta: {\n      turn_count: 0\n    }\n  }) }}',\n  '',\n  false,\n  NOW(),\n  NOW()\n)\nON CONFLICT (session_id)\nDO UPDATE SET\n  player_name = EXCLUDED.player_name,\n  current_scene = 'intro_pending',\n  state_json = EXCLUDED.state_json,\n  summary_text = '',\n  is_initialized = false,\n  updated_at = NOW()\nRETURNING\n  session_id,\n  player_name,\n  current_scene,\n  is_initialized,\n  updated_at;\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        928,
+        -256
+      ],
+      "id": "3a888783-68fb-4c03-9405-aba006ca413b",
+      "name": "start_session_upsert",
+      "credentials": {
+        "postgres": {
+          "id": "yT0nyyXSWfoMGoEc",
+          "name": "ролевик sql"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{$(\"Code in JavaScript\").item.json.chat_id}}",
+        "text": "Добро пожаловать в игру.  Сессия создана или сброшена. Теперь отправь первое игровое сообщение, чтобы начать сцену.",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1536,
+        -256
+      ],
+      "id": "4a68f94f-5fdb-46ef-b13d-4ea6bf4ace4b",
+      "name": "start_reply",
+      "webhookId": "74164473-5585-4210-94df-a5d97e4c4ad1",
+      "credentials": {
+        "telegramApi": {
+          "id": "S3rYaW7Ytn87ydbj",
+          "name": "ролевик"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE game_sessions\nSET\n  player_name = '{{ $(\"Code in JavaScript\").item.json.username }}',\n  current_scene = 'intro_pending',\n  state_json = '{{ JSON.stringify({\n    player: {\n      name: \"Дэниал\",\n      injuries: [],\n      inventory: [],\n      status_effects: [],\n      contracts: []\n    },\n    world: {\n      location: null,\n      time_of_day: null,\n      weather: null,\n      danger_level: 0\n    },\n    scene: {\n      title: null,\n      situation: null\n    },\n    meta: {\n      turn_count: 0\n    }\n  }) }}',\n  summary_text = '',\n  is_initialized = false,\n  updated_at = NOW()\nWHERE session_id = '{{ $(\"Code in JavaScript\").item.json.session_id }}'\nRETURNING\n  session_id,\n  player_name,\n  current_scene,\n  is_initialized,\n  updated_at;\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        928,
+        0
+      ],
+      "id": "4367065c-9ddb-468a-b807-9c1e6ce12f3c",
+      "name": "reset_session",
+      "credentials": {
+        "postgres": {
+          "id": "yT0nyyXSWfoMGoEc",
+          "name": "ролевик sql"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{$(\"Code in JavaScript\").item.json.chat_id}}\n",
+        "text": "Сессия сброшена.  Все состояние очищено. Отправь новое игровое сообщение, чтобы начать заново.",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1744,
+        0
+      ],
+      "id": "bdc498ca-ee53-4d9e-bc06-dad78a2ef414",
+      "name": "reset_reply",
+      "webhookId": "74164473-5585-4210-94df-a5d97e4c4ad1",
+      "credentials": {
+        "telegramApi": {
+          "id": "S3rYaW7Ytn87ydbj",
+          "name": "ролевик"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{$(\"Code in JavaScript\").item.json.chat_id}}\n",
+        "text": "Неизвестная команда.  Доступно: /start — создать или перезапустить сессию /reset — сбросить сессию  Или просто отправь обычное игровое сообщение.",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        832,
+        464
+      ],
+      "id": "ecb10666-5b2e-4a7e-b448-523a377f0430",
+      "name": "unknown_reply",
+      "webhookId": "74164473-5585-4210-94df-a5d97e4c4ad1",
+      "credentials": {
+        "telegramApi": {
+          "id": "S3rYaW7Ytn87ydbj",
+          "name": "ролевик"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE game_sessions\nSET\n  is_initialized = true,\n  updated_at = NOW()\nWHERE session_id = '{{ $(\"reply_ready\").item.json.session_id }}'\nRETURNING session_id, is_initialized, updated_at;\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        5280,
+        608
+      ],
+      "id": "caadc267-89b4-4026-9bc5-6f43b7c930d1",
+      "name": "mark_initialized",
+      "credentials": {
+        "postgres": {
+          "id": "yT0nyyXSWfoMGoEc",
+          "name": "ролевик sql"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE game_sessions\nSET\n  state_json = jsonb_set(\n    COALESCE(state_json::jsonb, '{}'::jsonb),\n    '{meta,turn_count}',\n    to_jsonb(\n      COALESCE((state_json::jsonb #>> '{meta,turn_count}')::int, 0) + 1\n    ),\n    true\n  ),\n  updated_at = NOW()\nWHERE session_id = '{{ $(\"reply_ready\").item.json.session_id }}'\nRETURNING session_id, state_json, updated_at;\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        5280,
+        448
+      ],
+      "id": "e9c0990c-b8f9-4015-962f-93b9bdbc6b60",
+      "name": "increment_turn_count",
+      "credentials": {
+        "postgres": {
+          "id": "yT0nyyXSWfoMGoEc",
+          "name": "ролевик sql"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const raw = String($json.assistant_text || '').trim();\n\nconst safeText = raw.length > 3800\n  ? raw.slice(0, 3800).trim() + '\\n\\n[сообщение обрезано]'\n  : raw;\n\nreturn {\n  json: {\n    session_id: $json.session_id,\n    chat_id: $json.chat_id,\n    user_id: $json.user_id,\n    username: $json.username,\n    user_text: $json.user_text,\n    assistant_text: $json.assistant_text,\n    telegram_text: safeText\n  }\n};\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3776,
+        352
+      ],
+      "id": "bb48a3fd-a791-4804-8748-cae0293abc92",
+      "name": "telegram_reply_prepare"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.prompt_payload.system + \"\\n\\n\" + $json.prompt_payload.context + \"\\n\\nСгенерируй следующий фрагмент сцены. Не пиши за игрока. Не придумывай его реплики, действия, решения или мысли. Опиши только мир, последствия, угрозы, окружение, NPC, системные элементы и развитие ситуации после его ввода.\\n\\nВвод игрока:\\n\" + $json.prompt_payload.user }}\n",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        3232,
+        352
+      ],
+      "id": "c8c2e55f-c248-4589-97fb-8c9cd6c75f52",
+      "name": "story_llm"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "476818a9-1148-4bf5-82c4-3f680a84c00a",
+              "leftValue": "={{$json.telegram_text}}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        4000,
+        336
+      ],
+      "id": "78efe43f-b435-4bc4-88d8-52cfbefd4c0e",
+      "name": "reply_has_text"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "99fb6a23-b0a1-40a7-96d4-2642fbdebf35",
+              "name": "session_id",
+              "value": "={{$json.session_id}}",
+              "type": "string"
+            },
+            {
+              "id": "df64c890-b793-4ec5-b370-e681f8a8eb89",
+              "name": "chat_id",
+              "value": "={{$json.chat_id}}",
+              "type": "string"
+            },
+            {
+              "id": "3a99486d-b224-4bc9-b1d5-df646ae9f3f6",
+              "name": "user_id",
+              "value": "={{$json.user_id}}",
+              "type": "string"
+            },
+            {
+              "id": "702d92e1-0d7b-4e2d-b7ea-3f74ca6f458c",
+              "name": "username",
+              "value": "={{$json.username}}",
+              "type": "string"
+            },
+            {
+              "id": "2db2c9ef-d168-46df-ba9b-ba9169dcda8c",
+              "name": "user_text",
+              "value": "={{$json.user_text}}",
+              "type": "string"
+            },
+            {
+              "id": "b363d04d-0a51-4978-b94c-e1b23439178f",
+              "name": "assistant_text",
+              "value": "Система на мгновение замолкает. Воздух дрожит, будто сама сцена не успела принять форму. Попробуй отправить сообщение ещё раз.",
+              "type": "string"
+            },
+            {
+              "id": "89e73877-5114-4ec0-972a-a0bd17563cca",
+              "name": "telegram_text",
+              "value": "Система на мгновение замолкает. Воздух дрожит, будто сама сцена не успела принять форму. Попробуй отправить сообщение ещё раз.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        4160,
+        624
+      ],
+      "id": "30c9cf4a-b5f0-47de-9f7a-c9b47249936d",
+      "name": "empty_reply_fallback"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        4336,
+        352
+      ],
+      "id": "141206bd-36ee-4891-b1a0-f24ba744396e",
+      "name": "reply_ready"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        3248,
+        32
+      ],
+      "id": "55982b7a-e846-44c0-80aa-c1a05c8820da",
+      "name": "turn_context_full"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "let state = {};\n\ntry {\n  state = typeof $json.state_json === 'string'\n    ? JSON.parse($json.state_json)\n    : ($json.state_json || {});\n} catch {\n  state = {};\n}\n\nstate.player = state.player || {\n  name: 'Дэниал',\n  injuries: [],\n  inventory: [],\n  status_effects: [],\n  contracts: []\n};\n\nstate.world = state.world || {\n  location: null,\n  time_of_day: null,\n  weather: null,\n  danger_level: 0\n};\n\nstate.scene = state.scene || {\n  title: null,\n  situation: null\n};\n\nstate.meta = state.meta || {};\n\nstate.meta.last_user_text = $json.user_text || '';\nstate.meta.last_assistant_text = $json.assistant_text || '';\nstate.meta.last_turn_at = new Date().toISOString();\n\nreturn {\n  json: {\n    session_id: $json.session_id,\n    next_state_json: JSON.stringify(state)\n  }\n};\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3456,
+        32
+      ],
+      "id": "71ef040b-48ad-4e3b-8de9-e5546897cd8f",
+      "name": "build_state_update"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE game_sessions\nSET\n  state_json = '{{ $(\"build_state_update\").item.json.next_state_json.replace(/'/g, \"''\") }}',\n  updated_at = NOW()\nWHERE session_id = '{{ $(\"build_state_update\").item.json.session_id }}'\nRETURNING session_id, state_json, updated_at;\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        3664,
+        32
+      ],
+      "id": "1f66541b-a0b9-4a44-9b60-6c2d65d230e6",
+      "name": "update_state_json",
+      "credentials": {
+        "postgres": {
+          "id": "yT0nyyXSWfoMGoEc",
+          "name": "ролевик sql"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT\n  id,\n  user_text,\n  assistant_text,\n  created_at\nFROM game_turns\nWHERE session_id = '{{ $(\"session_with_turn\").item.json.session_id }}'\n  AND user_text NOT LIKE '/start%'\n  AND user_text NOT LIKE '/reset%'\nORDER BY created_at DESC\nLIMIT 8;\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        2256,
+        176
+      ],
+      "id": "53f1f9b3-2434-4e50-a45f-7958f0d6be56",
+      "name": "load_recent_turns",
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "yT0nyyXSWfoMGoEc",
+          "name": "ролевик sql"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const turns = items.map(item => item.json).reverse();\n\nconst dialogueBlock = turns.length\n  ? turns.map((t, i) => {\n      const userText = t.user_text || '';\n      const assistantText = t.assistant_text || '';\n      return `[Ход ${i + 1}]\nИгрок: ${userText}\nИИ: ${assistantText}`;\n    }).join('\\n\\n')\n  : 'Нет предыдущих ходов.';\n\nreturn [\n  {\n    json: {\n      session_id: $('session_with_turn').item.json.session_id,\n      recent_turns_count: turns.length,\n      dialogue_block: dialogueBlock\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2448,
+        176
+      ],
+      "id": "49eba7bf-8327-4963-bded-c88a0a4f329f",
+      "name": "recent_turns_pack"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        2816,
+        304
+      ],
+      "id": "22490766-0bc4-422a-983e-53cfdd119a71",
+      "name": "story_context_full"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const userText = String($json.user_text || '').trim();\nconst assistantText = String($json.assistant_text || '').trim();\n\nconst shortAssistant = assistantText.length > 500\n  ? assistantText.slice(0, 500).trim() + '...'\n  : assistantText;\n\nlet importance = 3;\n\nif (userText.startsWith('/')) importance = 1;\nif (assistantText.includes('контракт') || assistantText.includes('Созвезд')) importance = 4;\nif (assistantText.includes('травм') || assistantText.includes('кров') || assistantText.includes('смерт')) importance = 4;\nif (assistantText.includes('задание') || assistantText.includes('система')) importance = 4;\n\nreturn {\n  json: {\n    session_id: $json.session_id,\n    memory_type: 'turn',\n    memory_content: `Игрок: ${userText} | ИИ: ${shortAssistant}`,\n    memory_importance: importance\n  }\n};\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4448,
+        128
+      ],
+      "id": "1e2646d2-f0c9-447e-88e9-357dd0939930",
+      "name": "memory_entry_prepare"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "DELETE FROM game_turns\nWHERE session_id = '{{ $(\"Code in JavaScript\").item.json.session_id }}';\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1136,
+        0
+      ],
+      "id": "e14522f5-b2fe-4a32-9e91-7c4d0dfccdf2",
+      "name": "reset_delete_turns",
+      "credentials": {
+        "postgres": {
+          "id": "yT0nyyXSWfoMGoEc",
+          "name": "ролевик sql"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "DELETE FROM game_memories\nWHERE session_id = '{{ $(\"Code in JavaScript\").item.json.session_id }}';\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1344,
+        0
+      ],
+      "id": "044e534f-680e-4ad9-8798-88d3a8485e83",
+      "name": "reset_delete_memories",
+      "credentials": {
+        "postgres": {
+          "id": "yT0nyyXSWfoMGoEc",
+          "name": "ролевик sql"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "DELETE FROM game_turns\nWHERE session_id = '{{ $(\"Code in JavaScript\").item.json.session_id }}';\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1136,
+        -256
+      ],
+      "id": "1275f648-0175-45d1-87c8-06c5cc70c044",
+      "name": "start_delete_turns",
+      "credentials": {
+        "postgres": {
+          "id": "yT0nyyXSWfoMGoEc",
+          "name": "ролевик sql"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "DELETE FROM game_memories\nWHERE session_id = '{{ $(\"Code in JavaScript\").item.json.session_id }}';\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1344,
+        -256
+      ],
+      "id": "3b3ec343-e3d1-4be7-b389-531f14221f71",
+      "name": "start_delete_memories",
+      "credentials": {
+        "postgres": {
+          "id": "yT0nyyXSWfoMGoEc",
+          "name": "ролевик sql"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "DELETE FROM game_memories\nWHERE session_id = '{{ $(\"reply_ready\").item.json.session_id }}'\n  AND id NOT IN (\n    SELECT id\n    FROM game_memories\n    WHERE session_id = '{{ $(\"reply_ready\").item.json.session_id }}'\n    ORDER BY importance DESC, created_at DESC\n    LIMIT 60\n  );\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        4752,
+        128
+      ],
+      "id": "374a3939-d407-45f6-ae16-6f44b1a5489d",
+      "name": "prune_memories",
+      "credentials": {
+        "postgres": {
+          "id": "yT0nyyXSWfoMGoEc",
+          "name": "ролевик sql"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "DELETE FROM game_turns\nWHERE session_id = '{{ $(\"reply_ready\").item.json.session_id }}'\n  AND id NOT IN (\n    SELECT id\n    FROM game_turns\n    WHERE session_id = '{{ $(\"reply_ready\").item.json.session_id }}'\n    ORDER BY created_at DESC\n    LIMIT 40\n  );\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        4608,
+        816
+      ],
+      "id": "e92c1b89-3315-4fdf-875c-8f12aa232207",
+      "name": "prune_turns",
+      "credentials": {
+        "postgres": {
+          "id": "yT0nyyXSWfoMGoEc",
+          "name": "ролевик sql"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT\n  category,\n  title,\n  content,\n  priority\nFROM world_lore\nWHERE is_active = TRUE\nORDER BY priority DESC, category ASC, id ASC;\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        2256,
+        0
+      ],
+      "id": "285f44a4-deb2-4d75-87bb-fb5cefeab100",
+      "name": "load_world_bible",
+      "credentials": {
+        "postgres": {
+          "id": "yT0nyyXSWfoMGoEc",
+          "name": "ролевик sql"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const lore = items.map(item => item.json);\n\nconst isInitialized = Boolean($('session_with_turn').item.json.is_initialized);\n\nconst filtered = lore.filter(entry => {\n  if (entry.category === 'OPENING_SCENE') return !isInitialized;\n  return true;\n});\n\nconst grouped = {};\nfor (const entry of filtered) {\n  const category = entry.category || 'GENERAL';\n  if (!grouped[category]) grouped[category] = [];\n  grouped[category].push(entry);\n}\n\nconst categoryOrder = [\n  'CORE_RULES',\n  'SETTING',\n  'PROTAGONIST',\n  'PLAYER_ACTIONS',\n  'RESPONSE_FORMAT',\n  'STARTING_FOCUS',\n  'MEMORY_RULES',\n  'SYSTEM',\n  'HOSTS',\n  'CONSTELLATIONS',\n  'RACES',\n  'ARTIFACTS',\n  'ITEMS',\n  'OPENING_SCENE'\n];\n\n\nconst allCategories = Object.keys(grouped);\nconst ordered = [\n  ...categoryOrder.filter(c => allCategories.includes(c)),\n  ...allCategories.filter(c => !categoryOrder.includes(c))\n];\n\nconst blocks = ordered.map(category => {\n  const entries = grouped[category]\n    .sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0))\n    .map(e => `- ${e.title}: ${e.content}`)\n    .join('\\n');\n  return `## ${category}\\n${entries}`;\n});\n\nconst worldBibleBlock = blocks.length\n  ? blocks.join('\\n\\n')\n  : 'Лор мира пока не загружен.';\n\nreturn [\n  {\n    json: {\n      world_bible_block: worldBibleBlock,\n      world_bible_count: filtered.length,\n      is_initialized: isInitialized\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2448,
+        0
+      ],
+      "id": "1bb1f938-a0d7-45e1-9cea-e215ef101a9a",
+      "name": "world_bible_pack",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "DELETE FROM world_npcs WHERE session_id = '{{ $(\"Code in JavaScript\").item.json.session_id }}';\nDELETE FROM world_constellations WHERE session_id = '{{ $(\"Code in JavaScript\").item.json.session_id }}';\nDELETE FROM world_hosts WHERE session_id = '{{ $(\"Code in JavaScript\").item.json.session_id }}';\nDELETE FROM world_contracts WHERE session_id = '{{ $(\"Code in JavaScript\").item.json.session_id }}';\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1552,
+        0
+      ],
+      "id": "31561aab-4135-4c0d-a913-35418691a855",
+      "name": "reset_delete_world_state",
+      "credentials": {
+        "postgres": {
+          "id": "yT0nyyXSWfoMGoEc",
+          "name": "ролевик sql"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT name, role, faction, relation, status, notes, last_scene\nFROM world_npcs\nWHERE session_id = '{{ $(\"session_with_turn\").item.json.session_id }}'\nORDER BY updated_at DESC\nLIMIT 35;\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        2592,
+        704
+      ],
+      "id": "a53be397-b0ac-4d73-986f-f7e3844e3f4d",
+      "name": "load_world_npcs:",
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "yT0nyyXSWfoMGoEc",
+          "name": "ролевик sql"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT name, sphere, attitude, notes, first_seen_scene\nFROM world_constellations\nWHERE session_id = '{{ $(\"session_with_turn\").item.json.session_id }}'\nORDER BY updated_at DESC\nLIMIT 100;\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        2592,
+        864
+      ],
+      "id": "b24b1018-8905-4662-a891-b263da363a2c",
+      "name": "load_world_constellations",
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "yT0nyyXSWfoMGoEc",
+          "name": "ролевик sql"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT name, sector, rank, attitude, notes\nFROM world_hosts\nWHERE session_id = '{{ $(\"session_with_turn\").item.json.session_id }}'\nORDER BY updated_at DESC\nLIMIT 10;\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        2592,
+        1024
+      ],
+      "id": "a9306495-1d16-4bd2-b60d-005a85e90f23",
+      "name": "load_world_hosts",
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "yT0nyyXSWfoMGoEc",
+          "name": "ролевик sql"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT title, constellation, conditions, rewards, status, notes\nFROM world_contracts\nWHERE session_id = '{{ $(\"session_with_turn\").item.json.session_id }}'\nORDER BY status ASC, updated_at DESC\nLIMIT 15;\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        2592,
+        1200
+      ],
+      "id": "d1ea9245-66f8-4d00-b71b-b7003aed27b8",
+      "name": "load_world_contracts",
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "yT0nyyXSWfoMGoEc",
+          "name": "ролевик sql"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const npcs = $input.all(0).map(i => i.json);\nconst constellations = $input.all(1).map(i => i.json);\nconst hosts = $input.all(2).map(i => i.json);\nconst contracts = $input.all(3).map(i => i.json);\n\nfunction packNpcs(rows) {\n  if (!rows.length) return 'Нет известных NPC.';\n  return rows.map(n => {\n    const parts = [];\n    parts.push(`- ${n.name}`);\n    if (n.role) parts.push(`роль: ${n.role}`);\n    if (n.faction) parts.push(`фракция: ${n.faction}`);\n    if (n.relation) parts.push(`отношение: ${n.relation}`);\n    if (n.status) parts.push(`статус: ${n.status}`);\n    if (n.last_scene) parts.push(`последняя сцена: ${n.last_scene}`);\n    if (n.notes) parts.push(`заметки: ${n.notes}`);\n    return parts.join(' | ');\n  }).join('\\n');\n}\n\nfunction packConstellations(rows) {\n  if (!rows.length) return 'Ни одно Созвездие пока не проявилось.';\n  return rows.map(c => {\n    const parts = [];\n    parts.push(`- ${c.name}`);\n    if (c.sphere) parts.push(`сфера: ${c.sphere}`);\n    if (c.attitude) parts.push(`отношение: ${c.attitude}`);\n    if (c.first_seen_scene) parts.push(`первое появление: ${c.first_seen_scene}`);\n    if (c.notes) parts.push(`заметки: ${c.notes}`);\n    return parts.join(' | ');\n  }).join('\\n');\n}\n\nfunction packHosts(rows) {\n  if (!rows.length) return 'Ведущие пока не известны.';\n  return rows.map(h => {\n    const parts = [];\n    parts.push(`- ${h.name}`);\n    if (h.sector) parts.push(`сектор: ${h.sector}`);\n    if (h.rank) parts.push(`ранг: ${h.rank}`);\n    if (h.attitude) parts.push(`отношение: ${h.attitude}`);\n    if (h.notes) parts.push(`заметки: ${h.notes}`);\n    return parts.join(' | ');\n  }).join('\\n');\n}\n\nfunction packContracts(rows) {\n  if (!rows.length) return 'Активных контрактов нет.';\n  return rows.map(c => {\n    const parts = [];\n    parts.push(`- ${c.title}`);\n    if (c.constellation) parts.push(`от: ${c.constellation}`);\n    if (c.status) parts.push(`статус: ${c.status}`);\n    if (c.conditions) parts.push(`условия: ${c.conditions}`);\n    if (c.rewards) parts.push(`награды: ${c.rewards}`);\n    if (c.notes) parts.push(`заметки: ${c.notes}`);\n    return parts.join(' | ');\n  }).join('\\n');\n}\n\nconst worldStateBlock = [\n  '### NPC',\n  packNpcs(npcs),\n  '',\n  '### CONSTELLATIONS',\n  packConstellations(constellations),\n  '',\n  '### HOSTS',\n  packHosts(hosts),\n  '',\n  '### CONTRACTS',\n  packContracts(contracts)\n].join('\\n');\n\nreturn [\n  {\n    json: {\n      world_state_block: worldStateBlock,\n      world_state_counts: {\n        npcs: npcs.length,\n        constellations: constellations.length,\n        hosts: hosts.length,\n        contracts: contracts.length\n      }\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2608,
+        496
+      ],
+      "id": "fee09681-b263-4b47-b197-6b981ad7dd94",
+      "name": "world_state_pack"
+    },
+    {
+      "parameters": {
+        "model": "deepseek/deepseek-chat-v3.1",
+        "options": {
+          "maxTokens": 600,
+          "temperature": 0.2
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        4448,
+        1280
+      ],
+      "id": "f9f90bf5-da65-4d26-8e8e-08c7653c2a93",
+      "name": "OpenRouter Chat Model1",
+      "credentials": {
+        "openRouterApi": {
+          "id": "TuxL7GWoRbXnLuCk",
+          "name": "ролевик"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ \"Ты — анализатор игрового хода. Тебе даны последний ход игрока и последний ответ ведущего. Извлеки из них только новые сущности, которые стоит запомнить надолго: NPC по имени, Созвездия по имени, Ведущих по имени, активные или новые контракты.\\n\\nОтвечай строго в JSON без какого-либо текста до или после. Структура:\\n{\\n  \\\"npcs\\\": [{\\\"name\\\": \\\"\\\", \\\"role\\\": \\\"\\\", \\\"faction\\\": \\\"\\\", \\\"relation\\\": \\\"\\\", \\\"status\\\": \\\"alive\\\", \\\"notes\\\": \\\"\\\", \\\"last_scene\\\": \\\"\\\"}],\\n  \\\"constellations\\\": [{\\\"name\\\": \\\"\\\", \\\"sphere\\\": \\\"\\\", \\\"attitude\\\": \\\"\\\", \\\"notes\\\": \\\"\\\", \\\"first_seen_scene\\\": \\\"\\\"}],\\n  \\\"hosts\\\": [{\\\"name\\\": \\\"\\\", \\\"sector\\\": \\\"\\\", \\\"rank\\\": \\\"\\\", \\\"attitude\\\": \\\"\\\", \\\"notes\\\": \\\"\\\"}],\\n  \\\"contracts\\\": [{\\\"title\\\": \\\"\\\", \\\"constellation\\\": \\\"\\\", \\\"conditions\\\": \\\"\\\", \\\"rewards\\\": \\\"\\\", \\\"status\\\": \\\"active\\\", \\\"notes\\\": \\\"\\\"}]\\n}\\n\\nПравила:\\n- Никогда не добавляй Дэниала в npcs.\\n- Включай только сущности, у которых есть конкретное имя или название.\\n- Если ничего нового нет — верни все 4 массива пустыми.\\n- Никакого текста вне JSON.\\n\\nХод игрока:\\n\" + ($(\"reply_ready\").item.json.user_text || \"\") + \"\\n\\nОтвет ведущего:\\n\" + ($(\"reply_ready\").item.json.assistant_text || \"\") }}\n",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        4448,
+        1104
+      ],
+      "id": "ea9d42b6-051c-44ee-9a15-ab9bed439e27",
+      "name": "world_state_extractor"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const raw = String(\n  $json.text ||\n  $json.response ||\n  $json.output ||\n  $json.output_text ||\n  $json.content ||\n  ''\n).trim();\n\nlet parsed = { npcs: [], constellations: [], hosts: [], contracts: [] };\n\nif (raw) {\n  let candidate = raw;\n\n  const fenceMatch = candidate.match(/```(?:json)?\\s*([\\s\\S]*?)```/i);\n  if (fenceMatch) candidate = fenceMatch[1].trim();\n\n  const firstBrace = candidate.indexOf('{');\n  const lastBrace = candidate.lastIndexOf('}');\n  if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {\n    candidate = candidate.slice(firstBrace, lastBrace + 1);\n  }\n\n  try {\n    const obj = JSON.parse(candidate);\n    parsed.npcs = Array.isArray(obj.npcs) ? obj.npcs : [];\n    parsed.constellations = Array.isArray(obj.constellations) ? obj.constellations : [];\n    parsed.hosts = Array.isArray(obj.hosts) ? obj.hosts : [];\n    parsed.contracts = Array.isArray(obj.contracts) ? obj.contracts : [];\n  } catch (e) {\n    parsed = { npcs: [], constellations: [], hosts: [], contracts: [] };\n  }\n}\n\nfunction clean(value, maxLen = 500) {\n  if (value === null || value === undefined) return '';\n  return String(value).replace(/'/g, \"''\").trim().slice(0, maxLen);\n}\n\nconst sessionId = String($('reply_ready').item.json.session_id || '');\nconst currentScene = String($('reply_ready').item.json.user_text || '').slice(0, 200);\n\nconst npcs = parsed.npcs\n  .filter(n => n && n.name && String(n.name).trim() && String(n.name).trim().toLowerCase() !== 'дэниал')\n  .map(n => ({\n    name: clean(n.name, 120),\n    role: clean(n.role, 200),\n    faction: clean(n.faction, 200),\n    relation: clean(n.relation, 200),\n    status: clean(n.status || 'alive', 50),\n    notes: clean(n.notes, 500),\n    last_scene: clean(n.last_scene || currentScene, 200)\n  }));\n\nconst constellations = parsed.constellations\n  .filter(c => c && c.name && String(c.name).trim())\n  .map(c => ({\n    name: clean(c.name, 120),\n    sphere: clean(c.sphere, 120),\n    attitude: clean(c.attitude, 120),\n    notes: clean(c.notes, 500),\n    first_seen_scene: clean(c.first_seen_scene || currentScene, 200)\n  }));\n\nconst hosts = parsed.hosts\n  .filter(h => h && h.name && String(h.name).trim())\n  .map(h => ({\n    name: clean(h.name, 120),\n    sector: clean(h.sector, 120),\n    rank: clean(h.rank, 60),\n    attitude: clean(h.attitude, 120),\n    notes: clean(h.notes, 500)\n  }));\n\nconst contracts = parsed.contracts\n  .filter(c => c && c.title && String(c.title).trim())\n  .map(c => ({\n    title: clean(c.title, 200),\n    constellation: clean(c.constellation, 120),\n    conditions: clean(c.conditions, 500),\n    rewards: clean(c.rewards, 500),\n    status: clean(c.status || 'active', 60),\n    notes: clean(c.notes, 500)\n  }));\n\nreturn {\n  json: {\n    session_id: sessionId,\n    npcs_json: JSON.stringify(npcs),\n    constellations_json: JSON.stringify(constellations),\n    hosts_json: JSON.stringify(hosts),\n    contracts_json: JSON.stringify(contracts),\n    counts: {\n      npcs: npcs.length,\n      constellations: constellations.length,\n      hosts: hosts.length,\n      contracts: contracts.length\n    }\n  }\n};\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4800,
+        1104
+      ],
+      "id": "c411ebc3-cf71-4b0c-8159-35e83a961b93",
+      "name": "world_state_parse"
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = items[0]?.json || {};\nconst npcs = JSON.parse(item.npcs_json || '[]');\nconst sessionId = item.session_id;\nreturn npcs.map(n => ({ json: { session_id: sessionId, ...n } }));\n\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4976,
+        1104
+      ],
+      "id": "1b488400-1e8c-42ca-aca3-3f006bcc7c18",
+      "name": "world_state_split_npcs",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO world_npcs (session_id, name, role, faction, relation, status, notes, last_scene, created_at, updated_at)\nVALUES (\n  '{{ $json.session_id }}',\n  '{{ $json.name }}',\n  '{{ $json.role }}',\n  '{{ $json.faction }}',\n  '{{ $json.relation }}',\n  '{{ $json.status }}',\n  '{{ $json.notes }}',\n  '{{ $json.last_scene }}',\n  NOW(),\n  NOW()\n)\nON CONFLICT (session_id, name) DO UPDATE SET\n  role = COALESCE(NULLIF(EXCLUDED.role, ''), world_npcs.role),\n  faction = COALESCE(NULLIF(EXCLUDED.faction, ''), world_npcs.faction),\n  relation = COALESCE(NULLIF(EXCLUDED.relation, ''), world_npcs.relation),\n  status = COALESCE(NULLIF(EXCLUDED.status, ''), world_npcs.status),\n  notes = COALESCE(NULLIF(EXCLUDED.notes, ''), world_npcs.notes),\n  last_scene = COALESCE(NULLIF(EXCLUDED.last_scene, ''), world_npcs.last_scene),\n  updated_at = NOW();\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        5184,
+        1104
+      ],
+      "id": "f3895272-afdd-46bc-b594-8df8d577e764",
+      "name": "save_world_npcs",
+      "credentials": {
+        "postgres": {
+          "id": "yT0nyyXSWfoMGoEc",
+          "name": "ролевик sql"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = items[0]?.json || {};\nconst constellations = JSON.parse(item.constellations_json || '[]');\nconst sessionId = item.session_id;\nreturn constellations.map(c => ({ json: { session_id: sessionId, ...c } }));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4976,
+        1248
+      ],
+      "id": "76e5bb7a-d1b5-4653-96c1-667f2bb12206",
+      "name": "world_state_split_constellations",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO world_constellations (session_id, name, sphere, attitude, notes, first_seen_scene, created_at, updated_at)\nVALUES (\n  '{{ $json.session_id }}',\n  '{{ $json.name }}',\n  '{{ $json.sphere }}',\n  '{{ $json.attitude }}',\n  '{{ $json.notes }}',\n  '{{ $json.first_seen_scene }}',\n  NOW(),\n  NOW()\n)\nON CONFLICT (session_id, name) DO UPDATE SET\n  sphere = COALESCE(NULLIF(EXCLUDED.sphere, ''), world_constellations.sphere),\n  attitude = COALESCE(NULLIF(EXCLUDED.attitude, ''), world_constellations.attitude),\n  notes = COALESCE(NULLIF(EXCLUDED.notes, ''), world_constellations.notes),\n  first_seen_scene = COALESCE(NULLIF(EXCLUDED.first_seen_scene, ''), world_constellations.first_seen_scene),\n  updated_at = NOW();\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        5184,
+        1248
+      ],
+      "id": "6f6ee8c8-2da8-4077-847d-5594ff27ba40",
+      "name": "save_world_constellations",
+      "credentials": {
+        "postgres": {
+          "id": "yT0nyyXSWfoMGoEc",
+          "name": "ролевик sql"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = items[0]?.json || {};\nconst hosts = JSON.parse(item.hosts_json || '[]');\nconst sessionId = item.session_id;\nreturn hosts.map(h => ({ json: { session_id: sessionId, ...h } }));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4976,
+        1408
+      ],
+      "id": "6eb120ef-e92e-49e7-a6b0-c664d873aa32",
+      "name": "world_state_split_hosts",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO world_hosts (session_id, name, sector, rank, attitude, notes, created_at, updated_at)\nVALUES (\n  '{{ $json.session_id }}',\n  '{{ $json.name }}',\n  '{{ $json.sector }}',\n  '{{ $json.rank }}',\n  '{{ $json.attitude }}',\n  '{{ $json.notes }}',\n  NOW(),\n  NOW()\n)\nON CONFLICT (session_id, name) DO UPDATE SET\n  sector = COALESCE(NULLIF(EXCLUDED.sector, ''), world_hosts.sector),\n  rank = COALESCE(NULLIF(EXCLUDED.rank, ''), world_hosts.rank),\n  attitude = COALESCE(NULLIF(EXCLUDED.attitude, ''), world_hosts.attitude),\n  notes = COALESCE(NULLIF(EXCLUDED.notes, ''), world_hosts.notes),\n  updated_at = NOW();\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        5184,
+        1408
+      ],
+      "id": "9fc4c322-20bc-45da-be19-5eac3354e8f1",
+      "name": "save_world_hosts",
+      "credentials": {
+        "postgres": {
+          "id": "yT0nyyXSWfoMGoEc",
+          "name": "ролевик sql"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = items[0]?.json || {};\nconst contracts = JSON.parse(item.contracts_json || '[]');\nconst sessionId = item.session_id;\nreturn contracts.map(c => ({ json: { session_id: sessionId, ...c } }));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4976,
+        1552
+      ],
+      "id": "5e1b7a7e-541b-48cd-9ed4-64c43ee84f5b",
+      "name": "world_state_split_contracts",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO world_contracts (session_id, title, constellation, conditions, rewards, status, notes, created_at, updated_at)\nVALUES (\n  '{{ $json.session_id }}',\n  '{{ $json.title }}',\n  '{{ $json.constellation }}',\n  '{{ $json.conditions }}',\n  '{{ $json.rewards }}',\n  '{{ $json.status }}',\n  '{{ $json.notes }}',\n  NOW(),\n  NOW()\n)\nON CONFLICT (session_id, title) DO UPDATE SET\n  constellation = COALESCE(NULLIF(EXCLUDED.constellation, ''), world_contracts.constellation),\n  conditions = COALESCE(NULLIF(EXCLUDED.conditions, ''), world_contracts.conditions),\n  rewards = COALESCE(NULLIF(EXCLUDED.rewards, ''), world_contracts.rewards),\n  status = COALESCE(NULLIF(EXCLUDED.status, ''), world_contracts.status),\n  notes = COALESCE(NULLIF(EXCLUDED.notes, ''), world_contracts.notes),\n  updated_at = NOW();\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        5184,
+        1568
+      ],
+      "id": "7f835ee1-e712-41ce-b2fa-24feff19d69f",
+      "name": "save_world_contracts",
+      "credentials": {
+        "postgres": {
+          "id": "yT0nyyXSWfoMGoEc",
+          "name": "ролевик sql"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "session_with_turn",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "start_session_upsert",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "reset_session",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "load_session",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "unknown_reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "session_exists": {
+      "main": [
+        [
+          {
+            "node": "session_ready",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "create_session",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "load_session": {
+      "main": [
+        [
+          {
+            "node": "session_exists",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "create_session": {
+      "main": [
+        [
+          {
+            "node": "session_ready",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "session_ready": {
+      "main": [
+        [
+          {
+            "node": "session_with_turn",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "session_with_turn": {
+      "main": [
+        [
+          {
+            "node": "load_recent_memory",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "story_context_base",
+            "type": "main",
+            "index": 1
+          },
+          {
+            "node": "load_recent_turns",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "load_world_bible",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "load_world_npcs:",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "load_world_constellations",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "load_world_hosts",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "load_world_contracts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "load_recent_memory": {
+      "main": [
+        [
+          {
+            "node": "memory_pack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "memory_pack": {
+      "main": [
+        [
+          {
+            "node": "story_context_base",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "story_context_base": {
+      "main": [
+        [
+          {
+            "node": "turn_context_full",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "story_context_full",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "story_llm",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "build_prompt_payload": {
+      "main": [
+        [
+          {
+            "node": "story_llm",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "extract_model_text": {
+      "main": [
+        [
+          {
+            "node": "telegram_reply_prepare",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "save_turn": {
+      "main": [
+        [
+          {
+            "node": "prune_turns",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "touch_session": {
+      "main": [
+        []
+      ]
+    },
+    "start_session_upsert": {
+      "main": [
+        [
+          {
+            "node": "start_delete_turns",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "reset_session": {
+      "main": [
+        [
+          {
+            "node": "reset_delete_turns",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "update_summary": {
+      "main": [
+        []
+      ]
+    },
+    "telegram_reply_prepare": {
+      "main": [
+        [
+          {
+            "node": "reply_has_text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "story_llm": {
+      "main": [
+        [
+          {
+            "node": "extract_model_text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "reply_has_text": {
+      "main": [
+        [
+          {
+            "node": "reply_ready",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "empty_reply_fallback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "empty_reply_fallback": {
+      "main": [
+        [
+          {
+            "node": "reply_ready",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "reply_ready": {
+      "main": [
+        [
+          {
+            "node": "save_turn",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "turn_context_full",
+            "type": "main",
+            "index": 1
+          },
+          {
+            "node": "memory_entry_prepare",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "send_reply",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "touch_session",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "update_summary",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "mark_initialized",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "increment_turn_count",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "world_state_extractor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "turn_context_full": {
+      "main": [
+        [
+          {
+            "node": "build_state_update",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "build_state_update": {
+      "main": [
+        [
+          {
+            "node": "update_state_json",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "load_recent_turns": {
+      "main": [
+        [
+          {
+            "node": "recent_turns_pack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "recent_turns_pack": {
+      "main": [
+        [
+          {
+            "node": "story_context_full",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "story_context_full": {
+      "main": [
+        [
+          {
+            "node": "build_prompt_payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "memory_entry_prepare": {
+      "main": [
+        [
+          {
+            "node": "save_memory",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "reset_delete_turns": {
+      "main": [
+        [
+          {
+            "node": "reset_delete_memories",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "reset_delete_memories": {
+      "main": [
+        [
+          {
+            "node": "reset_delete_world_state",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "start_delete_turns": {
+      "main": [
+        [
+          {
+            "node": "start_delete_memories",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "start_delete_memories": {
+      "main": [
+        [
+          {
+            "node": "start_reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "save_memory": {
+      "main": [
+        [
+          {
+            "node": "prune_memories",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "load_world_bible": {
+      "main": [
+        [
+          {
+            "node": "world_bible_pack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "world_bible_pack": {
+      "main": [
+        [
+          {
+            "node": "story_context_base",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "reset_delete_world_state": {
+      "main": [
+        [
+          {
+            "node": "reset_reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "load_world_npcs:": {
+      "main": [
+        [
+          {
+            "node": "world_state_pack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "load_world_constellations": {
+      "main": [
+        [
+          {
+            "node": "world_state_pack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "load_world_hosts": {
+      "main": [
+        [
+          {
+            "node": "world_state_pack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "load_world_contracts": {
+      "main": [
+        [
+          {
+            "node": "world_state_pack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "world_state_pack": {
+      "main": [
+        [
+          {
+            "node": "story_context_base",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "world_state_extractor",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "world_state_extractor": {
+      "main": [
+        [
+          {
+            "node": "world_state_parse",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "world_state_parse": {
+      "main": [
+        [
+          {
+            "node": "world_state_split_npcs",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "world_state_split_constellations",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "world_state_split_hosts",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "world_state_split_contracts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "world_state_split_npcs": {
+      "main": [
+        [
+          {
+            "node": "save_world_npcs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "world_state_split_constellations": {
+      "main": [
+        [
+          {
+            "node": "save_world_constellations",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "world_state_split_hosts": {
+      "main": [
+        [
+          {
+            "node": "save_world_hosts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "world_state_split_contracts": {
+      "main": [
+        [
+          {
+            "node": "save_world_contracts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "05ac83fb-9e9c-4d5c-9884-b88c36258bf3",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "463782d9800285e855dc0568fc8523163118f1115b63d320bbd639a66f888621"
+  },
+  "id": "Ym59nT9K0MH3lxuy",
+  "tags": []
+}
